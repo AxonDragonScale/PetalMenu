@@ -1,29 +1,13 @@
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.EaseInCirc
 import androidx.compose.animation.core.EaseInOutBack
-import androidx.compose.animation.core.EaseInOutBounce
-import androidx.compose.animation.core.EaseInOutCirc
-import androidx.compose.animation.core.EaseInOutElastic
-import androidx.compose.animation.core.EaseInOutQuart
-import androidx.compose.animation.core.EaseInQuart
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -43,6 +27,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import util.conditionalModifier
 import util.ifTrue
 import util.noIndicationClickable
 
@@ -63,9 +48,13 @@ fun PetalMenu(
         animationSpec = animationSpec,
     )
 
+    var isPortrait by remember { mutableStateOf(true) }
     Box(
         modifier = modifier
             .fillMaxSize()
+            .onSizeChanged {
+                isPortrait = it.height > it.width
+            }
             .noIndicationClickable {
                 isMenuOpen = false
             },
@@ -73,7 +62,11 @@ fun PetalMenu(
 
     Box(
         modifier = Modifier
-            .fillMaxSize(menuSize)
+            .conditionalModifier(
+                condition = isPortrait,
+                ifTrue = { fillMaxWidth(menuSize) },
+                ifFalse = { fillMaxHeight(menuSize) },
+            )
             .aspectRatio(1F)
             .shadow(12.dp, CircleShape)
             .clip(CircleShape)
@@ -113,10 +106,12 @@ fun PetalMenu(
                         transformOrigin = TransformOrigin(0F, 0.5F)
                         rotationZ = rotationDegree
                     }
-//                    .ifTrue(isMenuOpen) {
-//                        shadow(4.dp, RoundedCornerShape(50))
-//                        // Shadow peeks out on the right side on opening menu
-//                    }
+                    .ifTrue(isMenuOpen) {
+                        // Issues -
+                        // 1. Shadow peeks out on the right side on opening menu
+                        // 2. On jvm/wasm, the transculent part of petal has border due to shadow
+                        shadow(4.dp, RoundedCornerShape(50))
+                    }
                     .clip(RoundedCornerShape(50))
                     .background(
                         Brush.horizontalGradient(
