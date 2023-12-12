@@ -13,4 +13,5 @@ Browser - ./gradlew :composeApp:wasmJsBrowserRun <br/>
 
 https://github.com/AxonDragonScale/PetalMenu/assets/22011353/da7fdc34-d013-4622-8eb7-d53e943891c7
 
-
+# Credits
+Inspired by https://github.com/bodhichristian/PetalMenu
